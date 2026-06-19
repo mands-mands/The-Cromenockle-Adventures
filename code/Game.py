@@ -1,22 +1,22 @@
 import sys
 import pygame
-
 from code.Const import WIN_WIDTH, WIN_HEIGHT
+from code.Menu import Menu
+from code.Level import Level
 
 class Game:
     def __init__(self):
-        pygame.init()  # inicia o pygame
+        pygame.init()
         pygame.display.set_caption("The Cromenockle adventures")
-        self.window = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))  # define o tamanho da tela
-        self.clock = pygame.time.Clock()  # define o fps do jogo
-
+        self.window = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
+        self.clock = pygame.time.Clock()
 
     def run(self):
         while True:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-
+            menu = Menu(self.window)
+            resultado = menu.run()
+            if resultado == "iniciar":
+                level = Level(self.window)
+                level.run()
             pygame.display.update()
-            self.clock.tick(60)  # define o fps para 60
+            self.clock.tick(60)
