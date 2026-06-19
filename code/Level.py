@@ -1,6 +1,7 @@
 import sys
 import pygame
 from code.Const import WIN_WIDTH, WIN_HEIGHT
+from code.Player import Player
 
 class Level:
     def __init__(self, window):
@@ -17,9 +18,13 @@ class Level:
         # Plataformas (x, y, largura, altura)
         self.plataformas = [
             pygame.Rect(0, WIN_HEIGHT - 70, WIN_WIDTH, 70),  # chão
-            pygame.Rect(100, 480, 48, 20),                   # plataforma 1
+            pygame.Rect(450, 440, 48, 20),                   # plataforma 1
 
         ]
+
+        self.player = Player(self.window, self.plataformas)
+
+
 
     def desenhar_plataformas(self):
         for i, plat in enumerate(self.plataformas):
@@ -32,6 +37,7 @@ class Level:
                 self.window.blit(img, (x, plat.y))
                 x += img.get_width()
 
+
     def run(self):
         while True:
             # Fundo
@@ -39,6 +45,9 @@ class Level:
 
             # Plataformas
             self.desenhar_plataformas()
+
+            self.player.update()
+            self.player.draw()
 
             pygame.display.flip()
 
