@@ -5,6 +5,13 @@ class Player:
     def __init__(self, window, plataformas):
         self.window = window
         self.plataformas = plataformas
+        self.pos_x = 50.0
+
+        self.vida = 3  # começa com 3 corações
+        self.invencivel = False  # após tomar dano fica invencível por um tempo
+        self.inv_timer = 0  # contador de invencibilidade
+        self.morrendo = False
+        self.morte_timer = 0
 
         # Carrega sprite sheet
         self.sheet = pygame.image.load("./assets/sprites/ethan.png").convert_alpha()
@@ -18,14 +25,15 @@ class Player:
             'idle':     list(range(0, 9)),    # frames 0 a 8
             'correr':   list(range(9, 15)),   # frames 9 a 14
             'pulo':     [15],                 # frame 15
-            'machucado': list(range(16, 18)), # frames 16 a 17
+            'machucado': list(range(16, 18)),
+            'morte':    [20, 21, 22]# frames 16 a 17
         }
 
         # Estado atual
         self.estado = 'idle'
         self.frame_atual = 0
         self.frame_timer = 0
-        self.frame_velocidade = 35  # troca de frame a cada 35 ticks
+        self.frame_velocidade = 15  # troca de frame a cada 35 ticks
 
         # Posição e movimento
         self.rect = pygame.Rect(50, WIN_HEIGHT - 120, 32, 48)
@@ -56,12 +64,12 @@ class Player:
         self.vel_x = 0
 
         if keys[pygame.K_LEFT]:
-            self.vel_x = -1 if self.no_chao else -2
+            self.vel_x = -2 if self.no_chao else -3
             self.virado = True
             if self.no_chao:
                 self.estado = 'correr'
         elif keys[pygame.K_RIGHT]:
-            self.vel_x = 1 if self.no_chao else 2
+            self.vel_x = 2 if self.no_chao else 3
             self.virado = False
             if self.no_chao:
                 self.estado = 'correr'
@@ -76,39 +84,72 @@ class Player:
 
     def fisica(self):
         # Gravidade
-        self.vel_y += 0.15
+        self.vel_y += 0.3
         if self.vel_y > 15:
             self.vel_y = 15
 
-        # Move horizontalmente
-        self.rect.x += self.vel_x
+        # Move horizontalmente PRIMEIRO
+        self.pos_x += self.vel_x
+        if self.pos_x < 0:
+            self.pos_x = 0
+        if self.pos_x + self.rect.width > WIN_WIDTH:
+            self.pos_x = WIN_WIDTH - self.rect.width
+        self.rect.x = int(self.pos_x)
 
-        # Limita nas bordas da tela
-        if self.rect.left < 0:
-            self.rect.left = 0
-        if self.rect.right > WIN_WIDTH:
-            self.rect.right = WIN_WIDTH
-
-        # Move verticalmente
+        # Move verticalmente DEPOIS
+        self.no_chao = False
         self.rect.y += int(self.vel_y)
 
         # Colisão com plataformas
-        self.no_chao = False
         for plat in self.plataformas:
             if self.rect.colliderect(plat):
-                if self.vel_y > 0:  # caindo
+                # Verifica de onde veio antes da colisão
+                prev_bottom = self.rect.bottom - int(self.vel_y)
+                prev_top = self.rect.top - int(self.vel_y)
+
+                if prev_bottom <= plat.top + 5:  # vinha de cima, pousou
                     self.rect.bottom = plat.top
                     self.vel_y = 0
                     self.no_chao = True
-                elif self.vel_y < 0:  # subindo
+                elif prev_top >= plat.bottom - 5:  # vinha de baixo, bateu embaixo
                     self.rect.top = plat.bottom
                     self.vel_y = 0
 
+    def tomar_dano(self):
+        if not self.invencivel:
+            self.vida -= 1
+            self.invencivel = True
+            self.inv_timer = 0
+            self.frame_atual = 0
+            if self.vida <= 0:
+                self.morrendo = True
+                self.estado = 'morte'  # era 'machucado', troca pra 'morte'
+            else:
+                self.estado = 'machucado'
+
     def update(self):
+        if self.morrendo:
+            self.morte_timer += 1
+            self.animar()
+            return  # não processa mais nada
+
         self.input()
         self.fisica()
+
+        if self.invencivel:
+            self.inv_timer += 1
+            self.estado = 'machucado'
+            if self.inv_timer > 90:
+                self.invencivel = False
+                self.estado = 'idle'
+
         self.animar()
 
+    def morreu(self):
+        return self.morrendo and self.morte_timer > 120  # 2 segundos
+
     def draw(self):
+        if self.morrendo and self.morte_timer % 10 < 5:
+            return
         frame = self.get_frame()
         self.window.blit(frame, (self.rect.x, self.rect.y))
