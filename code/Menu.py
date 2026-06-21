@@ -66,7 +66,12 @@ class Menu:
     def menu_text(self, text_size: int, text: str, text_color: tuple,
                   text_center_pos: tuple, italic=False):
         text_font: Font = pygame.font.SysFont(name="Lucida Sans Typewriter",
-                                               size=text_size, italic=italic)
+                                              size=text_size, italic=italic)
+        # Sombra preta
+        sombra_surf: Surface = text_font.render(text, True, COR_PRETO).convert_alpha()
+        sombra_rect: Rect = sombra_surf.get_rect(center=(text_center_pos[0] + 2, text_center_pos[1] + 2))
+        self.window.blit(source=sombra_surf, dest=sombra_rect)
+        # Texto principal
         text_surf: Surface = text_font.render(text, True, text_color).convert_alpha()
         text_rect: Rect = text_surf.get_rect(center=text_center_pos)
         self.window.blit(source=text_surf, dest=text_rect)

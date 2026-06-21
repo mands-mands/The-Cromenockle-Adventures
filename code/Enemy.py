@@ -7,7 +7,7 @@ class Enemy:
         self.x = float(x)
         # Carrega sprite sheet
         self.sheet = pygame.image.load("./assets/sprites/ghost.png").convert_alpha()
-        self.rect_dano = pygame.Rect(x + 20, y + 10, 40, 50)  # retângulo menor no centro
+        self.rect_dano = pygame.Rect(x + 25, y + 25, 30, 35)  # retângulo menor no centro
 
         # Tamanho de cada frame
         self.frame_w = 64
