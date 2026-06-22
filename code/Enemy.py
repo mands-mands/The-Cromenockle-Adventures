@@ -5,29 +5,25 @@ class Enemy:
     def __init__(self, window, x, y, alcance=400, vel_x=2, virado=False):
         self.window = window
         self.x = float(x)
-        # Carrega sprite sheet
-        self.sheet = pygame.image.load("./assets/sprites/ghost.png").convert_alpha()
-        self.rect_dano = pygame.Rect(x + 25, y + 25, 30, 35)  # retângulo menor no centro
 
-        # Tamanho de cada frame
+        self.sheet = pygame.image.load("./assets/sprites/ghost.png").convert_alpha()
+        self.rect_dano = pygame.Rect(x + 25, y + 25, 30, 35)
+
         self.frame_w = 64
         self.frame_h = 64
 
-        # Animações
         self.animacoes = {
-            'idle':   list(range(0, 4)),    # frames 0 a 3
-            'move':   list(range(4, 8)),    # frames 4 a 7
-            'attack': list(range(13, 16)),  # frames 13 a 15
-            'hit':    list(range(20, 22)),  # frames 20 a 21
+            'idle':   list(range(0, 4)),
+            'move':   list(range(4, 8)),
+            'attack': list(range(13, 16)),
+            'hit':    list(range(20, 22)),
         }
 
-        # Estado
         self.estado = 'move'
         self.frame_atual = 0
         self.frame_timer = 0
         self.frame_velocidade = 10
 
-        # Posição e movimento
         self.rect = pygame.Rect(x, y, 64, 64)
         self.virado = virado
         self.vel_x = vel_x
@@ -37,11 +33,9 @@ class Enemy:
         else:
             self.vel_x = abs(vel_x)
 
-            # Limite de patrulha (anda 150px pra cada lado)
         self.origem_x = x
         self.alcance = alcance
 
-        # Ataque
         self.atacando = False
         self.ataque_timer = 0
 
@@ -68,7 +62,6 @@ class Enemy:
         self.x += self.vel_x
         self.rect.x = int(self.x)
 
-        # Inverte direção ao atingir o limite
         if self.rect.x >= min(self.origem_x + self.alcance, WIN_WIDTH - self.rect.width):
             self.vel_x = -abs(self.vel_x)
             self.virado = True
@@ -79,7 +72,7 @@ class Enemy:
 
     def verificar_ataque(self, player_rect):
         distancia = abs(self.rect.centerx - player_rect.centerx)
-        if distancia < 2 and abs(self.rect.centery - player_rect.centery) < 2:
+        if distancia < 30 and abs(self.rect.centery - player_rect.centery) < 30:
             if not self.atacando:
                 self.atacando = True
                 self.estado = 'attack'
@@ -93,7 +86,6 @@ class Enemy:
         self.rect_dano.centerx = self.rect.centerx
         self.rect_dano.centery = self.rect.centery
 
-        # Para de atacar após a animação completar
         if self.atacando:
             self.ataque_timer += 1
             if self.ataque_timer > 60:

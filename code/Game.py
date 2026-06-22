@@ -26,9 +26,9 @@ class Game:
                             continue
                         else:
                             break
-                    elif resultado_level == "vitoria":  # adiciona isso
+                    elif resultado_level == "vitoria":
                         self.tela_vitoria()
-                        break  # volta pro menu após vitória
+                        break
                     elif resultado_level == "menu":
                         break
             clock.tick(60)
@@ -36,7 +36,7 @@ class Game:
     def tela_game_over(self):
         pygame.mixer.music.stop()
         pygame.mixer.music.load("./assets/sound/game-over.mp3")
-        pygame.mixer.music.play(-1)  # -1 = loop infinito
+        pygame.mixer.music.play(-1)
         fonte = pygame.font.SysFont("Lucida Sans Typewriter", 60, bold=True)
         fonte_sub = pygame.font.SysFont("Lucida Sans Typewriter", 25)
 
@@ -45,11 +45,9 @@ class Game:
         while True:
             self.window.fill((0, 0, 0))
 
-            # Texto game over
             txt = fonte.render("GAME OVER", True, (255, 50, 50))
             self.window.blit(txt, (WIN_WIDTH // 2 - txt.get_width() // 2, WIN_HEIGHT // 2 - 80))
 
-            # Botão jogar novamente com hover
             mouse_pos = pygame.mouse.get_pos()
             hover = botao.collidepoint(mouse_pos)
             cor_botao = (255, 220, 50) if hover else (255, 255, 255)

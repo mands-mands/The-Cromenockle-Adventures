@@ -7,35 +7,30 @@ class Player:
         self.plataformas = plataformas
         self.pos_x = 50.0
 
-        self.vida = 3  # começa com 3 corações
+        self.vida = 3
         self.invencivel = False  # após tomar dano fica invencível por um tempo
         self.inv_timer = 0  # contador de invencibilidade
         self.morrendo = False
         self.morte_timer = 0
 
-        # Carrega sprite sheet
         self.sheet = pygame.image.load("./assets/sprites/ethan.png").convert_alpha()
 
-        # Tamanho de cada frame
         self.frame_w = 32
         self.frame_h = 32
 
-        # Animações — índices dos frames
         self.animacoes = {
-            'idle':     list(range(0, 9)),    # frames 0 a 8
-            'correr':   list(range(9, 15)),   # frames 9 a 14
-            'pulo':     [15],                 # frame 15
+            'idle':     list(range(0, 9)),
+            'correr':   list(range(9, 15)),
+            'pulo':     [15],
             'machucado': list(range(16, 18)),
-            'morte':    [20, 21, 22]# frames 16 a 17
+            'morte':    [20, 21, 22]
         }
 
-        # Estado atual
         self.estado = 'idle'
         self.frame_atual = 0
         self.frame_timer = 0
-        self.frame_velocidade = 15  # troca de frame a cada 35 ticks
+        self.frame_velocidade = 15
 
-        # Posição e movimento
         self.rect = pygame.Rect(50, WIN_HEIGHT - 120, 32, 48)
         self.vel_x = 0
         self.vel_y = 0
@@ -46,7 +41,7 @@ class Player:
         frames = self.animacoes[self.estado]
         idx = frames[self.frame_atual % len(frames)]
         frame = self.sheet.subsurface((idx * self.frame_w, 0, self.frame_w, self.frame_h))
-        # Escala pra ficar maior na tela
+
         frame = pygame.transform.scale(frame, (64, 64))
         if self.virado:
             frame = pygame.transform.flip(frame, True, False)
@@ -88,7 +83,7 @@ class Player:
         if self.vel_y > 15:
             self.vel_y = 15
 
-        # Move horizontalmente PRIMEIRO
+        # personagem se move horizontalmente primeiro
         self.pos_x += self.vel_x
         if self.pos_x < 0:
             self.pos_x = 0
@@ -96,22 +91,22 @@ class Player:
             self.pos_x = WIN_WIDTH - self.rect.width
         self.rect.x = int(self.pos_x)
 
-        # Move verticalmente DEPOIS
+        # personagem se move verticalmente depois
         self.no_chao = False
         self.rect.y += int(self.vel_y)
 
-        # Colisão com plataformas
+        # colisão com plataformas
         for plat in self.plataformas:
             if self.rect.colliderect(plat):
                 # Verifica de onde veio antes da colisão
                 prev_bottom = self.rect.bottom - int(self.vel_y)
                 prev_top = self.rect.top - int(self.vel_y)
 
-                if prev_bottom <= plat.top + 5:  # vinha de cima, pousou
+                if prev_bottom <= plat.top + 5:  # se for em cima, fica em cima
                     self.rect.bottom = plat.top
                     self.vel_y = 0
                     self.no_chao = True
-                elif prev_top >= plat.bottom - 5:  # vinha de baixo, bateu embaixo
+                elif prev_top >= plat.bottom - 5:  # se for embaixo, fica em baixo
                     self.rect.top = plat.bottom
                     self.vel_y = 0
 
@@ -123,7 +118,7 @@ class Player:
             self.frame_atual = 0
             if self.vida <= 0:
                 self.morrendo = True
-                self.estado = 'morte'  # era 'machucado', troca pra 'morte'
+                self.estado = 'morte'
             else:
                 self.estado = 'machucado'
 
@@ -131,7 +126,7 @@ class Player:
         if self.morrendo:
             self.morte_timer += 1
             self.animar()
-            return  # não processa mais nada
+            return
 
         self.input()
         self.fisica()
@@ -146,7 +141,7 @@ class Player:
         self.animar()
 
     def morreu(self):
-        return self.morrendo and self.morte_timer > 120  # 2 segundos
+        return self.morrendo and self.morte_timer > 120  
 
     def draw(self):
         if self.morrendo and self.morte_timer % 10 < 5:
